@@ -34,5 +34,11 @@ def save_account(message):
     user = message.from_user.username or "مستخدم"
     requests.get(f"{WEB_APP_URL}?action=addAccount&link={link}&user={user}")
     bot.send_message(message.chat.id, "تم حفظ حسابك!")
-
-bot.polling()
+    # بدلاً من bot.polling()، استخدم هذا لضمان الاستقرار:
+if __name__ == "__main__":
+    bot.remove_webhook()
+    bot.set_webhook(url=WEB_APP_URL.replace("/exec", "/"))
+    # هذا الكود سيجعل البوت لا يحتاج لـ polling ويظل ثابتاً
+    import time
+    while True:
+        time.sleep(10)
