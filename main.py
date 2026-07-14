@@ -1,24 +1,38 @@
-# استبدل رابط القناة في الأسفل برابط البوت الفعلي الخاص بك
-BOT_LINK = "https://t.me/@Nbhjhbiggjvuig6ihgybot"
+import telebot
+import requests
+from keep_alive import keep_alive
+
+# 1. تعريف التوكن والبوت أولاً
+TOKEN = '8877859402:AAESVv6dFFHoSwni-WqcW2jTqNRlCDRYyo8'
+WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbywjm4v3ExOL1ynBonQk1hYVzCzoeMUKvPSRTLXoi6cRBYUncUEsNgZ-NZEqPEPMwBu/exec'
+bot = telebot.TeleBot(TOKEN)
+
+# 2. تشغيل السيرفر
+keep_alive()
+
+# 3. الدوال والأوامر
+@bot.message_handler(commands=['start'])
+def start(message):
+    markup = telebot.types.InlineKeyboardMarkup()
+    markup.add(telebot.types.InlineKeyboardButton("🤝 تبادل (تفاعل كامل)", callback_data='exchange'))
+    markup.add(telebot.types.InlineKeyboardButton("➕ إضافة حسابي", callback_data='add_account'))
+    markup.add(telebot.types.InlineKeyboardButton("🚀 شارك البوت", callback_data='share'))
+    markup.add(telebot.types.InlineKeyboardButton("📞 تواصل مع إيطالي", url='https://t.me/mahwb7'))
+    markup.add(telebot.types.InlineKeyboardButton("💡 تعليمات العمل", callback_data='help'))
+    bot.send_message(message.chat.id, "أهلاً بك يا بطل! (نظام إيطالي المطور)", reply_markup=markup)
 
 @bot.callback_query_handler(func=lambda call: True)
 def callback(call):
     if call.data == 'help':
-        help_text = (
-            "💡 **دليل مستخدم بوت إيطالي المتطور:**\n\n"
-            "1️⃣ **الهدف:** التبادل الصادق والآمن لزيادة تفاعلك.\n"
-            "2️⃣ **طريقة العمل:** \n"
-            "   - اضغط 'إضافة حسابي' وأرسل الرابط.\n"
-            "   - عند طلب 'تبادل'، سيظهر لك حساب الشخص الذي قبلك.\n"
-            "   - تفاعل بـ (متابعة + لايك + تعليق) بصدق.\n"
-            "3️⃣ **الأمان:** لا تقم بأكثر من 10 تفاعلات في الساعة لكي لا يحظرك تيك توك.\n"
-            "4️⃣ **النصيحة الذهبية:** التفاعل بصدق يعني أن الشخص الآخر سيرد لك التفاعل بنفس الطريقة.\n"
-            "5️⃣ **للمشاكل:** تواصل مع المطور إيطالي مباشرة عبر زر التواصل.\n\n"
-            "العمل بنية طيبة يفتح لك أبواب التفاعل الحقيقي!"
-        )
-        bot.send_message(call.message.chat.id, help_text)
-    
-    elif call.data == 'share':
-        bot.send_message(call.message.chat.id, f"🚀 **ساعدنا في توسيع المجتمع:**\nشارك هذا الرابط مع أصدقائك لتزيد من قوة التبادل:\n{BOT_LINK}")
-    
-    # ... بقية الكود (إضافة حسابي، إلخ) ...
+        bot.send_message(call.message.chat.id, "💡 تعليمات: تفاعل بصدق، لا تكن أنانياً، شارك الرابط لترتقي للأعلى!")
+    elif call.data == 'add_account':
+        msg = bot.send_message(call.message.chat.id, "أرسل رابط حسابك في تيك توك:")
+        bot.register_next_step_handler(msg, save_account)
+
+def save_account(message):
+    link = message.text
+    user = message.from_user.username or "مستخدم"
+    requests.get(f"{WEB_APP_URL}?action=addAccount&link={link}&user={user}")
+    bot.send_message(message.chat.id, "تم حفظ حسابك!")
+
+bot.polling()
